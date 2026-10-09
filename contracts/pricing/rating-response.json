@@ -1,0 +1,12 @@
+{
+  "adjustments": [
+    { "factor": "Driver age", "multiplier": 1.00, "reason": "Driver aged 35" },
+    { "factor": "Driving experience", "multiplier": 1.00, "reason": "Licence held for 10 year(s)" },
+    { "factor": "No claims discount", "multiplier": 0.45, "reason": "5 year(s) no claims: 55% discount" },
+    { "factor": "Postcode area", "multiplier": 1.10, "reason": "Postcode area SK" },
+    { "factor": "Vehicle insurance group", "multiplier": 1.37, "reason": "Insurance group 20" },
+    { "factor": "Vehicle age", "multiplier": 1.00, "reason": "Vehicle is 5 year(s) old" },
+    { "factor": "Voluntary excess", "multiplier": 0.95, "reason": "Voluntary excess of £250" }
+  ],
+  "riskPremium": 322.121250
+}

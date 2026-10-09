@@ -1,0 +1,11 @@
+{
+  "driver": {
+    "dateOfBirth": "1991-03-15",
+    "licenceHeldYears": 10,
+    "noClaimsYears": 5,
+    "postcode": "SK1 3AB"
+  },
+  "vehicle": { "make": "Ford", "model": "Fiesta", "year": 2021, "insuranceGroup": 20 },
+  "coverType": "COMPREHENSIVE",
+  "voluntaryExcess": 250
+}

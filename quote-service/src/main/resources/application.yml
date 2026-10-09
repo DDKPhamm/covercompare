@@ -1,0 +1,65 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  application:
+    name: quote-service
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    # No defaults for credentials: the app refuses to start rather than fall back to a guessable password.
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+covercompare:
+  quote:
+    validity: 30d
+  rating:
+    max-attempts: 3
+    connection:
+      base-url: ${RATING_SERVICE_URL:http://localhost:8081}
+      connect-timeout: 500ms
+      read-timeout: 2s
+  insurers:
+    # The whole panel must answer within this time; slower insurers are shown as unavailable.
+    deadline: 3s
+    retry:
+      max-attempts: 2
+      backoff: 100ms
+    circuit-breaker:
+      failure-rate-threshold: 50
+      sliding-window-size: 10
+      minimum-number-of-calls: 5
+      wait-in-open-state: 30s
+    connections:
+      pennine:
+        base-url: ${PENNINE_URL:http://localhost:8082}
+        connect-timeout: 500ms
+        read-timeout: 1s
+      lighthouse:
+        base-url: ${LIGHTHOUSE_URL:http://localhost:8082}
+        connect-timeout: 500ms
+        read-timeout: 1s
+      redbrick:
+        base-url: ${REDBRICK_URL:http://localhost:8082}
+        connect-timeout: 500ms
+        read-timeout: 1s

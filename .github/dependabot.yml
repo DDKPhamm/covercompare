@@ -12,3 +12,14 @@ updates:
     directory: /
     schedule:
       interval: weekly
+
+  # Base images in the Dockerfile and compose.yaml, so security patches to the JRE and PostgreSQL arrive as PRs.
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule:
+      interval: weekly

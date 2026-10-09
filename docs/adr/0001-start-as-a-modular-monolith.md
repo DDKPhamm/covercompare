@@ -1,7 +1,7 @@
 # 1. Start as a modular monolith
 
 Date: 2026-10-04
-Status: Accepted
+Status: Superseded by [6](0006-split-into-three-services.md) in Phase 2
 
 ## Context
 
