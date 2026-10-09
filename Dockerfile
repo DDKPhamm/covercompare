@@ -17,8 +17,9 @@ COPY insurer-simulator/ insurer-simulator/
 COPY quote-service/ quote-service/
 
 # Tests already ran in the CI build job; this stage only packages. The cache mount keeps
-# downloaded dependencies between builds without baking them into an image layer.
-RUN --mount=type=cache,target=/root/.m2 \
+# downloaded dependencies between builds without baking them into an image layer. It is locked
+# because Compose builds all three images at once and Maven's cache is not safe for parallel writers.
+RUN --mount=type=cache,target=/root/.m2,sharing=locked \
     chmod +x mvnw && \
     ./mvnw --batch-mode --no-transfer-progress --projects "$SERVICE" --also-make package -DskipTests
 
