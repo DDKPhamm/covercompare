@@ -1,4 +1,18 @@
-# Local PostgreSQL for running the app with the default profile. Development only.
+# The whole platform on one machine. Development and CI only.
+#
+#   DB_PASSWORD=choose-one docker compose up --build --wait
+#   curl -X POST localhost:8080/api/v1/quotes -H 'Content-Type: application/json' -d @scripts/sample-quote.json
+#
+# Only quote-service is published to the host. pricing-service, the insurer simulator and PostgreSQL
+# are reachable only on the private compose network, as they would be in production.
+name: covercompare
+
+x-healthcheck: &actuator-healthcheck
+  interval: 5s
+  timeout: 3s
+  retries: 30
+  start_period: 10s
+
 services:
   postgres:
     image: postgres:18-alpine
@@ -6,10 +20,64 @@ services:
       POSTGRES_DB: covercompare
       POSTGRES_USER: covercompare
       POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD before running docker compose}
-    ports:
-      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U covercompare -d covercompare"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  pricing-service:
+    build:
+      context: .
+      args:
+        SERVICE: pricing-service
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8081/actuator/health/readiness"]
+      <<: *actuator-healthcheck
+
+  insurer-simulator:
+    build:
+      context: .
+      args:
+        SERVICE: insurer-simulator
+    # A little realistic misbehaviour, so the timeouts, retries and circuit breakers have work to do.
+    # Set any of these to 0 for a perfectly behaved panel.
+    environment:
+      SIMULATOR_INSURERS_PENNINE_FAULTS_LATENCY: ${PENNINE_LATENCY:-150ms}
+      SIMULATOR_INSURERS_LIGHTHOUSE_FAULTS_FAILURERATE: ${LIGHTHOUSE_FAILURE_RATE:-0.2}
+      SIMULATOR_INSURERS_REDBRICK_FAULTS_LATENCY: ${REDBRICK_LATENCY:-400ms}
+      SIMULATOR_INSURERS_REDBRICK_FAULTS_JITTER: ${REDBRICK_JITTER:-800ms}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8082/actuator/health/readiness"]
+      <<: *actuator-healthcheck
+
+  quote-service:
+    build:
+      context: .
+      args:
+        SERVICE: quote-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pricing-service:
+        condition: service_healthy
+      insurer-simulator:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/covercompare
+      DB_USERNAME: covercompare
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD before running docker compose}
+      RATING_SERVICE_URL: http://pricing-service:8081
+      PENNINE_URL: http://insurer-simulator:8082
+      LIGHTHOUSE_URL: http://insurer-simulator:8082
+      REDBRICK_URL: http://insurer-simulator:8082
+    ports:
+      - "127.0.0.1:8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8080/actuator/health/readiness"]
+      <<: *actuator-healthcheck
 
 volumes:
   postgres-data:

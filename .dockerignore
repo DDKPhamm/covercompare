@@ -1,0 +1,13 @@
+# Keep the build context small and free of anything that should not end up in an image.
+.git/
+.github/
+**/target/
+.idea/
+.vscode/
+*.iml
+.env
+*.log
+docs/
+scripts/
+compose.yaml
+README.md

@@ -31,7 +31,7 @@ jobs:
           java-version: "21"
           cache: maven
 
-      # Unit tests, then integration tests against PostgreSQL in Docker, then the coverage gate.
+      # Every module: unit tests, integration tests (PostgreSQL in Docker), then the coverage gate.
       - name: Build, test and check coverage
         run: ./mvnw --batch-mode --no-transfer-progress verify
 
@@ -41,7 +41,38 @@ jobs:
         with:
           name: test-reports
           path: |
-            target/surefire-reports/
-            target/failsafe-reports/
-            target/site/jacoco/
+            */target/surefire-reports/
+            */target/failsafe-reports/
+            */target/site/jacoco/
           retention-days: 14
+
+  end-to-end:
+    name: End-to-end (Docker Compose)
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v7
+
+      # A fresh random password per run: nothing secret is stored in the repository or the workflow.
+      - name: Generate database password
+        run: |
+          password="$(openssl rand -hex 24)"
+          echo "::add-mask::$password"
+          echo "DB_PASSWORD=$password" >> "$GITHUB_ENV"
+
+      - name: Build images and start the stack
+        run: docker compose up --build --wait --wait-timeout 300
+
+      - name: Run smoke test
+        run: bash scripts/smoke-test.sh
+
+      - name: Show service logs
+        if: failure()
+        run: docker compose logs --no-color
+
+      - name: Stop the stack
+        if: always()
+        run: docker compose down --volumes
