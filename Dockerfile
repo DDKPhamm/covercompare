@@ -4,7 +4,7 @@
 #   docker build --build-arg SERVICE=quote-service -t covercompare/quote-service .
 
 # ---- Build stage: compile the chosen service and split its jar into layers ----
-FROM eclipse-temurin:21-jdk-alpine AS build
+FROM eclipse-temurin:25-jdk-alpine AS build
 ARG SERVICE
 RUN test -n "$SERVICE" || (echo "Set the SERVICE build argument" && exit 1)
 WORKDIR /workspace
@@ -29,7 +29,7 @@ RUN java -Djarmode=tools -jar "$SERVICE/target/$SERVICE.jar" extract --layers \
     --application-filename app.jar --destination /workspace/extracted
 
 # ---- Runtime stage: a JRE only, no compiler, no build tools, no source code ----
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 RUN addgroup -S app && adduser -S app -G app
 WORKDIR /app
 
