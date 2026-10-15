@@ -8,6 +8,7 @@ Built as a portfolio project to practise enterprise Java, microservices, APIs, t
 cloud and AI-assisted development.
 
 ![CI](https://github.com/DDKPhamm/covercompare/actions/workflows/ci.yml/badge.svg)
+![Security](https://github.com/DDKPhamm/covercompare/actions/workflows/security.yml/badge.svg)
 
 ## Roadmap
 
@@ -120,6 +121,13 @@ Requires Java 21. Maven is downloaded automatically by the wrapper (`mvnw`).
   are skipped if Docker is not running, and always run in CI.
 - JaCoCo fails the build if line coverage in any module drops below 80%.
 - CI then builds the images, starts the whole stack with Docker Compose and runs the smoke test.
+
+## Security
+
+A separate workflow runs CodeQL on the Java code, Gitleaks over the full git history, and Trivy
+over the Dockerfile and every container image, failing on fixable high or critical
+vulnerabilities. Each image's SBOM is kept as a build artifact. See [`SECURITY.md`](SECURITY.md)
+for how to report a vulnerability.
 
 ## Development with AI tools
 
