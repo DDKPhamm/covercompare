@@ -28,6 +28,12 @@
 		<wiremock.version>3.13.2</wiremock.version>
 		<jacoco.version>0.8.15</jacoco.version>
 		<jacoco.minimum.line.coverage>0.80</jacoco.minimum.line.coverage>
+
+		<!-- Security patches ahead of Spring Boot 4.1.1's managed versions (found by the Trivy image scan).
+		     Remove each override once a Spring Boot release manages this version or newer. -->
+		<tomcat.version>11.0.27</tomcat.version>
+		<jackson-bom.version>3.1.7</jackson-bom.version>
+		<jackson-2-bom.version>2.21.7</jackson-2-bom.version>
 	</properties>
 
 	<dependencyManagement>
