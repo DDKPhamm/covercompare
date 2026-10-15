@@ -13,13 +13,21 @@ updates:
     schedule:
       interval: weekly
 
-  # Base images in the Dockerfile and compose.yaml, so security patches to the JRE and PostgreSQL arrive as PRs.
+  # Base images in the Dockerfile, so security patches to the JDK and JRE arrive as PRs.
+  # Major Java versions are a deliberate upgrade (the code targets Java 21), not a routine patch.
   - package-ecosystem: docker
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: eclipse-temurin
+        update-types: ["version-update:semver-major"]
 
+  # Major PostgreSQL versions need a data migration, so they are upgraded by hand.
   - package-ecosystem: docker-compose
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: postgres
+        update-types: ["version-update:semver-major"]
