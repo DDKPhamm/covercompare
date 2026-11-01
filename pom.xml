@@ -26,7 +26,7 @@
 		<springdoc.version>3.1.1</springdoc.version>
 		<resilience4j.version>2.4.0</resilience4j.version>
 		<wiremock.version>3.13.2</wiremock.version>
-		<jacoco.version>0.8.15</jacoco.version>
+		<jacoco.version>0.8.16</jacoco.version>
 		<jacoco.minimum.line.coverage>0.80</jacoco.minimum.line.coverage>
 
 		<!-- Security patches ahead of Spring Boot 4.1.1's managed versions (found by the Trivy image scan).
